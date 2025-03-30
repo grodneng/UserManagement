@@ -1,10 +1,13 @@
-// *** IMPORTS ***
+// *** NPM ***
 import React, { useLayoutEffect, useState } from 'react';
-import { Alert, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { AddUserScreenNavigationProp } from '../RootNavigation';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from './UsersScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ActivityIndicator, TextInput, useTheme } from 'react-native-paper'
+
+// *** OTHER ***
+import { User } from './UsersScreen';
+import { AddUserScreenNavigationProp } from '../RootNavigation';
 import useValidation from '../../../hooks/useValidation';
 
 // *** TYPES ***
@@ -13,18 +16,28 @@ interface IProps {
 }
 
 const AddUsersScreen = ({ navigation }: IProps): JSX.Element => {
+    // *** THEME ***
+    const { colors } = useTheme()
+
+    // *** USE STATE ***
     const [username, setUserName] = useState('');
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); 
 
+    // *** USE VALIDATE ***
     const { validateFields, validateWithServer } = useValidation(
-        login,
-        password,
-        confirmPassword,
+        username.trim(),
+        login.trim(),
+        password.trim(),
+        confirmPassword.trim(),
         {
             checkConfirmPassword: true,
-        }
+        },
+        setIsLoading
     );
 
     // *** HEADER CONFIGURATION ***
@@ -53,43 +66,80 @@ const AddUsersScreen = ({ navigation }: IProps): JSX.Element => {
             return;
         }
 
-        const newUser: User = { username, login, password };
+        const newUser: User = {
+            username: username.trim(),
+            login: login.trim(),
+            password: password.trim()
+        };
         users.push(newUser);
         await AsyncStorage.setItem('users', JSON.stringify(users));
         navigation.goBack();
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+              {isLoading && <ActivityIndicator size="large" color="#ffffff" style={styles.loadingIndicator} />}
             <TextInput
                 placeholder="Название"
                 value={username}
                 onChangeText={setUserName}
+                underlineColor='white'
+                textColor='white'
+                activeUnderlineColor='white'
                 placeholderTextColor="#A5A5A6"
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.background }]}
             />
             <TextInput
                 placeholder="Логин"
                 value={login}
                 onChangeText={setLogin}
+                underlineColor='white'
+                textColor='white'
+                activeUnderlineColor='white'
                 placeholderTextColor="#A5A5A6"
-                style={[styles.input, styles.inputMargin]}
+                style={[styles.input, styles.inputMargin, { backgroundColor: colors.background }]}
             />
             <TextInput
                 placeholder="Пароль"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                secureTextEntry={!showConfirmPassword}
+                underlineColor='white'
+                textColor='white'
+                activeUnderlineColor='white'
                 placeholderTextColor="#A5A5A6"
-                style={[styles.input, styles.inputMargin]}
+                textContentType={'oneTimeCode'}
+                autoComplete="off"
+                right={
+                    <TextInput.Icon
+                        icon={showConfirmPassword ? 'eye-off' : 'eye'}
+                        color={'white'}
+                        size={20}
+                        onPress={() => setShowConfirmPassword(prev => !prev)}
+                    />
+                }
+                style={[styles.input, styles.inputMargin, { backgroundColor: colors.background }]}
             />
             <TextInput
                 placeholder="Повтор пароля"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                secureTextEntry
+                secureTextEntry={!showPassword}
+                textColor='white'
+                underlineColor='white'
+                activeUnderlineColor='white'
                 placeholderTextColor="#A5A5A6"
-                style={[styles.input, styles.inputMargin]}
+                textContentType={'oneTimeCode'}
+                autoComplete="off"
+                right={
+                    <TextInput.Icon
+                        icon={showPassword ? 'eye-off' : 'eye'}
+                        color={'white'}
+                        size={20}
+                        onPress={() => setShowPassword(prev => !prev)}
+                    />
+                }
+                style={[styles.input, styles.inputMargin, { backgroundColor: colors.background }]}
             />
         </View>
     );
@@ -100,7 +150,6 @@ const styles = StyleSheet.create({
     container: {
         padding: 20,
         flex: 1,
-        backgroundColor: '#141517',
     },
     headerLeft: {
         flexDirection: 'row',
@@ -112,12 +161,16 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         fontSize: 16,
     },
+    loadingIndicator: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+    },
     input: {
-        borderBottomWidth: 1,
-        fontSize: 20,
-        color: '#A5A5A6',
-        padding: 5,
+        fontSize: 18,
+        color: 'white',
         borderColor: 'white',
+        height: 45,
     },
     inputMargin: {
         marginTop: 30,
