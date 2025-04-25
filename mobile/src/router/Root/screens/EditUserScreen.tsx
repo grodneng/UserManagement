@@ -1,9 +1,8 @@
-// *** NPM ***
+// *** NPM  ***
 import React, { useLayoutEffect, useState } from 'react'
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TextInput, useTheme, ActivityIndicator } from "react-native-paper"
 
 // *** OTHER ***
 import useValidation from '../../../hooks/useValidation';
@@ -17,9 +16,6 @@ interface IProps {
 }
 
 const EditUserScreen = (props: IProps): JSX.Element => {
-    // *** THEME ***
-    const { colors } = useTheme();
-
     // *** PROPS ***
     const { navigation, route } = props
 
@@ -27,17 +23,9 @@ const EditUserScreen = (props: IProps): JSX.Element => {
     const [username, setUserName] = useState(route.params.username);
     const [login, setLogin] = useState(route.params.login);
     const [password, setPassword] = useState(route.params.password);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-    const [isLoading, setIsLoading] = useState(false);
 
     // USE VALIDATION HOOK
-    const { validateFields, validateWithServer } = useValidation(
-        username.trim(),
-        login.trim(),
-        password.trim(),
-        '',
-        { checkConfirmPassword: false },
-        setIsLoading);
+    const { validateFields, validateWithServer } = useValidation(login, password, '', { checkConfirmPassword: false });
 
     // *** HEADER CONFIGURATION ***
     useLayoutEffect(() => {
@@ -78,60 +66,35 @@ const EditUserScreen = (props: IProps): JSX.Element => {
             return;
         }
 
-        users[userIndex] = {
-            ...users[userIndex],
-            username: username.trim(),
-            login: login.trim(),
-            password: password.trim()
-        };
+        users[userIndex] = { ...users[userIndex], username, login, password };
 
         await AsyncStorage.setItem('users', JSON.stringify(users));
         navigation.goBack();
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {isLoading && <ActivityIndicator size="large" color="#ffffff" style={styles.loadingIndicator} />}
+        <View style={styles.container}>
             <TextInput
                 placeholder="Название"
                 value={username}
                 onChangeText={setUserName}
-                underlineColor='white'
-                textColor='white'
-                activeUnderlineColor='white'
                 placeholderTextColor="#A5A5A6"
-                style={[styles.input, { backgroundColor: colors.background }]}
+                style={styles.input}
             />
             <TextInput
                 placeholder="Логин"
                 value={login}
                 onChangeText={setLogin}
-                underlineColor='white'
-                textColor='white'
-                activeUnderlineColor='white'
                 placeholderTextColor="#A5A5A6"
-                style={[styles.input, styles.inputMargin, { backgroundColor: colors.background }]}
+                style={[styles.input, styles.inputMargin]}
             />
             <TextInput
                 placeholder="Пароль"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry={!showConfirmPassword}
-                underlineColor='white'
-                textColor='white'
-                activeUnderlineColor='white'
+                secureTextEntry
                 placeholderTextColor="#A5A5A6"
-                textContentType={'oneTimeCode'}
-                autoComplete="off"
-                right={
-                    <TextInput.Icon
-                        icon={showConfirmPassword ? 'eye-off' : 'eye'}
-                        color={'white'}
-                        size={20}
-                        onPress={() => setShowConfirmPassword(prev => !prev)}
-                    />
-                }
-                style={[styles.input, styles.inputMargin, { backgroundColor: colors.background }]}
+                style={[styles.input, styles.inputMargin]}
             />
         </View>
     )
@@ -142,15 +105,11 @@ const styles = StyleSheet.create({
     container: {
         padding: 20,
         flex: 1,
+        backgroundColor: '#141517',
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    loadingIndicator: {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
     },
     headerTitle: {
         color: 'white',
@@ -159,10 +118,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     input: {
-        fontSize: 18,
-        color: 'white',
+        borderBottomWidth: 1,
+        fontSize: 20,
+        color: '#A5A5A6',
+        padding: 5,
         borderColor: 'white',
-        height: 45,
     },
     inputMargin: {
         marginTop: 30,

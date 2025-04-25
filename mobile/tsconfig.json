@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "outDir": "build",
+    "strict": true,
+    "incremental": true
+  },
+  "include": ["src/**/*"],
+  "extends": "@react-native/typescript-config/tsconfig.json"
+}

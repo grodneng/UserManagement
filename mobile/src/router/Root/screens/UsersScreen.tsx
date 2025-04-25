@@ -1,10 +1,9 @@
 // *** NPM ***
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
-import { useTheme, Text } from "react-native-paper"
 
 // *** OTHER ***
 import { UsersScreenNavigationProp } from '../RootNavigation';
@@ -21,10 +20,6 @@ interface IProps {
 }
 
 const UsersScreen = ({ navigation }: IProps): JSX.Element => {
-    // *** THEME ***
-    const { colors } = useTheme();
-
-    // *** USE STATE ***
     const [users, setUsers] = useState<User[]>([]);
     const isFocused = useIsFocused();
 
@@ -62,7 +57,7 @@ const UsersScreen = ({ navigation }: IProps): JSX.Element => {
             <Text style={styles.userLogin}>{user.login}</Text>
             <View style={styles.userActions}>
                 <TouchableOpacity
-                    style={styles.iconSettingButton}
+                    style={styles.iconButton}
                     onPress={() =>
                         navigation.navigate('EditUserScreen', {
                             username: user.username,
@@ -70,9 +65,9 @@ const UsersScreen = ({ navigation }: IProps): JSX.Element => {
                             password: user.password,
                         })
                     }>
-                    <Feather name='settings' color="white" size={21} />
+                    <Feather name='settings' color="#A5A5A6" size={20} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.iconDeleteButton} onPress={() => deleteUserHandler(user.username)}>
+                <TouchableOpacity style={styles.iconButton} onPress={() => deleteUserHandler(user.username)}>
                     <Feather name='trash-2' color="#A5A5A6" size={21} />
                 </TouchableOpacity>
             </View>
@@ -80,7 +75,7 @@ const UsersScreen = ({ navigation }: IProps): JSX.Element => {
     );
 
     return (
-        <View style={[styles.container, {backgroundColor: colors.background }]}>
+        <View style={styles.container}>
             {users.length === 0 ? (
                 <Text style={styles.emptyText}>Пользователи отсутсвуют</Text>
             ) : (
@@ -97,6 +92,7 @@ const UsersScreen = ({ navigation }: IProps): JSX.Element => {
 // *** STYLES ***
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: '#141517',
         flex: 1,
     },
     emptyText: {
@@ -121,13 +117,9 @@ const styles = StyleSheet.create({
     userActions: {
         flexDirection: 'row',
     },
-    iconSettingButton: {
+    iconButton: {
         padding: 5,
-        marginRight: 10
     },
-    iconDeleteButton: {
-        padding: 5,
-    }
 });
 
 export default UsersScreen;

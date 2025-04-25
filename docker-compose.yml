@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  api:
+    build: ./backend
+    env_file: ./backend/.env.example
+    ports:
+      - "3000:3000"
+    networks:
+      - um-net
+
+  skud:
+    build: ./skud
+    volumes:
+      - ./skud/config.yaml:/app/config.yaml  # чтобы менять настройки без пересборки
+    networks:
+      - um-net
+
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - um-net
+
+networks:
+  um-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
